@@ -1,26 +1,24 @@
-# channelBanlist# Telegram Ban-on-Leave Bot (Heroku-ready)
 
-**Feature summary (Hindi):**
-- `/start` par bot ek starting SMS bhejta hai.
-- Bot ko channel/supergroup me **admin (ban permission)** banana hoga.
-- Jo bhi member channel/supergroup **leave** karta hai, bot use **ban** kar dega (re-join rokne ke liye) aur **ban list** me add karega.
-- `/banlist` se current chat ki ban list dekh sakte ho.
-- `/ping` se health check.
-- (Optional) `OWNER_ID` set ho to `/unban <user_id>` se unban kar sakte ho.
+<p align='center'>
+  <a href="https://t.me/PROFESSOR_NETWORK" alt="MADE-BY-SOURABH"> <img src="https://img.shields.io/badge/Made%20with-Go-1f425f.svg?style=flat-square&logo=Go&color=blue" /> </a>
 
-> **Note:** Heroku ka filesystem ephemeral hota hai — yeh repo bans ko `data/bans.json` me store karta hai jo dyno restart pe reset ho sakta hai. Production ke liye Heroku Postgres/Redis jaisa persistent storage use karen.
+</h2>
+<img src="https://readme-typing-svg.herokuapp.com?color=FF0000&width=420&lines=♦ᴅᴇᴘʟᴏʏ+ᴏɴ+ʜᴇʀᴏᴋᴜ♦;♨️+ɴᴏ+ʜᴇʀᴏᴋᴜ+ʙᴀɴ+ɪssᴜᴇ+ᴀʟsᴏ+ᴠᴘs+ᴅᴇᴘʟᴏʏ+📍+ᴘʀᴇsᴇɴᴛ;🎭+ᴘᴏᴡᴇʀᴇᴅ+ʙʏ+𝗣𝗥𝗢𝗙𝗘𝗦𝗦𝗢𝗥+🎭">
+<p align="center">
+  <img src="https://telegra.ph/file/205f3cf027a5a11f5f70e.jpg">
+</p>
 
-## Deploy on Heroku (Worker dyno with long polling)
+**𝗧𝗘𝗦𝗧 𝗕𝗢𝗧 ➣ [](https://t.me/PROFESSOR_SUKOON_BOT)**
 
-1. **Create app** on Heroku.
-2. **Config Vars** set karein:
-   - `BOT_TOKEN` – aapke Telegram bot ka token (BotFather se).
-   - `START_MESSAGE` – (optional) custom start SMS.
-   - `OWNER_ID` – (optional) aapka Telegram user ID (unban command ke liye).
-3. **Deploy** this repo to Heroku (GitHub connect ya manual push).
-4. **Resources** tab me `worker` dyno ko **Enable** karein (web dyno ki zaroorat nahi).
-5. Telegram me bot ko **channel/supergroup me add karke admin (ban power)** dein.
 
-## Local run
-```bash
-BOT_TOKEN=123:ABC python bot.py
+
+<img src="https://readme-typing-svg.herokuapp.com?color=FF0000&width=420&lines=⚠️𝗙𝗢𝗥𝗞+𝗧𝗛𝗜𝗦+𝗥𝗘𝗣𝗢+𝗙𝗜𝗥𝗦𝗧𝗟𝗬⚠️">
+
+
+<h3 align="center">
+    ─「 ᴅᴇᴩʟᴏʏ ᴏɴ ʜᴇʀᴏᴋᴜ 」─
+
+<h3> 𝗛𝗘𝗥𝗢𝗞𝗨 𝗗𝗘𝗣𝗟𝗢𝗬𝗠𝗘𝗡𝗧 𝗕𝗨𝗧𝗧𝗢𝗡 </h3>
+</h3>
+
+[![Deploy To Heroku](https://graph.org/file/826b0a2fc82db8328a113.png)](https://dashboard.heroku.com/new-app?template=https://github.com/prf100rabhAaBb40769374divyanshi40769374/channelBanlist)
