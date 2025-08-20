@@ -1,75 +1,53 @@
-import os
-import json
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, CommandHandler
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import ContextTypes
 
-BANLIST_FILE = "banlist.json"
+BOT_TOKEN = "8140165897:AAGIPaC4ReOYti0Y2mU8i5-EwStrZkIph5w"
 
-# Banlist load/save helpers
-def load_banlist():
-    if not os.path.exists(BANLIST_FILE):
-        return []
-    with open(BANLIST_FILE, "r") as f:
-        return json.load(f)
+# Banlist memory (chalega jab tak bot restart nahi hota)
+banlist = {}
 
-def save_banlist(banlist):
-    with open(BANLIST_FILE, "w") as f:
-        json.dump(banlist, f, indent=2)
-
-# /start
+# Start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
-    await update.message.reply_text(
-        f"✅ Bot activated in: {chat.title or 'Private Chat'}\n\n"
-        "अब ये यहाँ leave hone wale members को ban करेगा और banlist में save करेगा।"
-    )
+    await update.message.reply_text(f"✅ Bot activated in: {chat.type}\n\nअब ये यहाँ leave hone wale members को ban करेगा और banlist में save करेगा।")
 
-# jab koi user leave kare
+# Member left event
 async def member_left(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     left_user = update.message.left_chat_member
 
     try:
-        # ban user
+        # Ban user permanently
         await context.bot.ban_chat_member(chat.id, left_user.id)
 
-        # banlist update
-        banlist = load_banlist()
-        ban_entry = {
-            "user_id": left_user.id,
-            "first_name": left_user.first_name,
-            "chat_id": chat.id,
-            "chat_title": chat.title
-        }
-        banlist.append(ban_entry)
-        save_banlist(banlist)
+        # Banlist me save karo
+        if chat.id not in banlist:
+            banlist[chat.id] = []
+        banlist[chat.id].append(left_user.id)
 
-        await update.message.reply_text(
-            f"❌ {left_user.first_name} को ban किया गया और banlist में save कर दिया।"
+        await context.bot.send_message(
+            chat_id=chat.id,
+            text=f"❌ {left_user.first_name} को ban कर दिया गया है। अब वो दोबारा इस channel को join नहीं कर पाएंगे।"
         )
-
     except Exception as e:
-        await update.message.reply_text(f"⚠️ Ban failed: {e}")
+        print("Error banning:", e)
 
-# /banlist
-async def banlist_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    banlist = load_banlist()
-    if not banlist:
+# Banlist check command
+async def show_banlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat = update.effective_chat
+    if chat.id not in banlist or len(banlist[chat.id]) == 0:
         await update.message.reply_text("📂 Banlist खाली है।")
-        return
+    else:
+        banned_users = "\n".join([str(uid) for uid in banlist[chat.id]])
+        await update.message.reply_text(f"📂 Banlist:\n{banned_users}")
 
-    text = "📂 Banlist:\n\n"
-    for entry in banlist:
-        text += f"👤 {entry['first_name']} (ID: {entry['user_id']}) in {entry['chat_title']}\n"
-
-    await update.message.reply_text(text)
-
+# Run the bot
 def main():
-    TOKEN = os.environ.get("BOT_TOKEN")  # Token env variable se le raha hai (Heroku me set karna hoga)
-    app = Application.builder().token(TOKEN).build()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("banlist", banlist_cmd))
+    app.add_handler(CommandHandler("banlist", show_banlist))
     app.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, member_left))
 
     app.run_polling()
