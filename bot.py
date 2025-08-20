@@ -1,32 +1,47 @@
 import os
-from telegram.ext import Updater, MessageHandler, Filters
-from telegram import ChatMemberUpdated
-from telegram.ext import CallbackContext
+from telegram.ext import ApplicationBuilder, ChatMemberHandler, CommandHandler
+from telegram import ChatMember, Update
+from telegram.ext import ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
-def member_update(update: ChatMemberUpdated, context: CallbackContext):
-    if update.chat.id == CHANNEL_ID:
-        old = update.old_chat_member
-        new = update.new_chat_member
+# ---------------- Starting SMS ----------------
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    await update.message.reply_text(
+        f"👋 Hello {user.first_name}!\n\n"
+        "✅ I am active.\n"
+        "📢 Add me to any channel/group as admin (with Ban permission),\n"
+        "so that I can automatically ban members who leave."
+    )
 
-        if old.status in ["member", "restricted"] and new.status == "left":
-            user_id = old.user.id
-            try:
-                context.bot.ban_chat_member(CHANNEL_ID, user_id)
-                print(f"Banned user {user_id} for leaving the channel.")
-            except Exception as e:
-                print(f"Error banning user {user_id}: {e}")
+# ---------------- Ban on Leave ----------------
+async def track_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    result = update.chat_member
+    status_change = result.difference().get("status")
 
-def start_bot():
-    updater = Updater(BOT_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+    if status_change is None:
+        return
 
-    dispatcher.add_handler(MessageHandler(Filters.status_update, member_update))
+    # agar user ne leave/ kick kiya hai
+    if result.old_chat_member.status in [ChatMember.MEMBER, ChatMember.RESTRICTED] and \
+       result.new_chat_member.status in [ChatMember.LEFT, ChatMember.KICKED]:
+        user_id = result.old_chat_member.user.id
+        chat_id = update.effective_chat.id
 
-    updater.start_polling()
-    updater.idle()
+        try:
+            await context.bot.ban_chat_member(chat_id, user_id)
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=f"🚫 {result.old_chat_member.user.mention_html()} left and has been banned.",
+                parse_mode="HTML"
+            )
+        except Exception as e:
+            print(f"Failed to ban user: {e}")
 
+# ---------------- Main ----------------
 if __name__ == "__main__":
-    start_bot()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    # /start command
+    app.add_handler(CommandHandler("start", start))
