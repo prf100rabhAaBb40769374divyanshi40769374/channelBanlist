@@ -1,0 +1,3 @@
+python-telegram-bot==21.6
+# Optional if you switch to webhooks:
+Flask==3.0.3
