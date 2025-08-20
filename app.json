@@ -1,0 +1,32 @@
+{
+  "name": "Telegram Ban-on-Leave Bot",
+  "description": "A Telegram bot that automatically bans users who leave a channel/group and keeps a ban list.",
+  "repository": "https://github.com/your-username/telegram-ban-on-leave-bot",
+  "keywords": ["telegram", "bot", "heroku", "ban", "python"],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Telegram Bot Token from @BotFather",
+      "required": true
+    },
+    "START_MESSAGE": {
+      "description": "Custom start message (optional)",
+      "required": false
+    },
+    "OWNER_ID": {
+      "description": "Telegram User ID of the bot owner (optional, for /unban)",
+      "required": false
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "stack": "heroku-22"
+}
